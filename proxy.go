@@ -93,19 +93,21 @@ func RunConnection(conn *Connection, twconn *protocol7.Connection) {
 		if err != nil {
 			panic(err)
 		}
-		// example of inspecting incoming trafic
-		for i, msg := range result.Packet.Messages {
-			if msg.MsgId() == network7.MsgGameSvChat {
-				var chat *messages7.SvChat
-				var ok bool
-				if chat, ok = result.Packet.Messages[i].(*messages7.SvChat); ok {
-					fmt.Printf("got chat msg: %s\n", chat.Message)
-					chat.Message = "capitalism."
+		// inspecting incoming trafic
+		if result != nil && result.Packet != nil {
+			for i, msg := range result.Packet.Messages {
+				if msg.MsgId() == network7.MsgGameSvChat {
+					var chat *messages7.SvChat
+					var ok bool
+					if chat, ok = result.Packet.Messages[i].(*messages7.SvChat); ok {
+						fmt.Printf("got chat msg: %s\n", chat.Message)
+						chat.Message = "capitalism."
 
-					// modify chat if this was a proxy
-					result.Packet.Messages[i] = chat
+						// modify chat if this was a proxy
+						result.Packet.Messages[i] = chat
 
-					srvMsg = result.Packet.Pack(twconn)
+						srvMsg = result.Packet.Pack(twconn)
+					}
 				}
 			}
 		}
