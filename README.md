@@ -2,6 +2,8 @@
 
 Man in the middle teeworlds proxy. Repacking chat messages. For now only the teeworlds 0.7 protocol is supported.
 
+![go proxy banner](https://raw.githubusercontent.com/ChillerDragon/cdn/master/teeworlds_go_proxy_banner.png)
+
 ## run the proxy
 
 ```
