@@ -8,8 +8,11 @@ import (
 	"log"
 	"net"
 	"os"
+	"os/signal"
 	"strings"
 	"sync"
+	"syscall"
+	"time"
 
 	"github.com/teeworlds-go/teeworlds/messages7"
 	"github.com/teeworlds-go/teeworlds/network7"
@@ -106,8 +109,36 @@ func RunConnection(conn *Connection, twconn *protocol7.Connection) {
 						// modify chat if this was a proxy
 						result.Packet.Messages[i] = chat
 
-						srvMsg = result.Packet.Pack(twconn)
+						repack := result.Packet.Pack(twconn)
+						srvMsg = repack
+						fmt.Printf("repack %x\n", repack)
 					}
+				} else if msg.MsgId() == network7.MsgCtrlToken {
+					fmt.Printf("got token=%x registering sigint handler ...\n", twconn.ServerToken)
+
+
+					c := make(chan os.Signal)
+					signal.Notify(c, os.Interrupt, syscall.SIGINT)
+					go func() {
+						<-c
+						Vlogf(0, "Got ctrl+c sending disconnect token=%x ack=%d ...\n", twconn.ServerToken, twconn.Ack)
+
+						packet := protocol7.Packet{}
+						packet.Messages = append(packet.Messages, &messages7.CtrlClose{})
+						packet.Header.Token = twconn.ServerToken
+						packet.Header.Ack = twconn.Ack
+						disconnectPacked := packet.Pack(twconn)
+						_, err = conn.ServerConn.Write(disconnectPacked)
+
+						time.Sleep(10_000_000)
+
+						Vlogf(0, "disconnected. token=%x ack=%d\n", twconn.ServerToken, twconn.Ack)
+						Vlogf(0, "disconnect: %x\n", disconnectPacked)
+
+						os.Exit(0)
+					}()
+
+
 				}
 			}
 		}
@@ -143,7 +174,7 @@ func RunProxy() {
 			}
 			ClientDict[saddr] = conn
 			dunlock()
-			Vlogf(2, "Created new connection for client %s\n", saddr)
+			Vlogf(0, "Created new connection for client %s\n", saddr)
 
 			twconn := &protocol7.Connection{
 				ClientToken: [4]byte{0x01, 0x02, 0x03, 0x04},
@@ -154,6 +185,7 @@ func RunProxy() {
 
 			// Fire up routine to manage new connection
 			go RunConnection(conn, twconn)
+
 		} else {
 			Vlogf(5, "Found connection for client %s\n", saddr)
 			dunlock()
