@@ -116,7 +116,6 @@ func RunConnection(conn *Connection, twconn *protocol7.Connection) {
 				} else if msg.MsgId() == network7.MsgCtrlToken {
 					fmt.Printf("got token=%x registering sigint handler ...\n", twconn.ServerToken)
 
-
 					c := make(chan os.Signal)
 					signal.Notify(c, os.Interrupt, syscall.SIGINT)
 					go func() {
@@ -137,7 +136,6 @@ func RunConnection(conn *Connection, twconn *protocol7.Connection) {
 
 						os.Exit(0)
 					}()
-
 
 				}
 			}
