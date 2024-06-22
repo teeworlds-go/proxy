@@ -24,10 +24,10 @@ func OnServerMessage(conn *Connection, twconn *protocol7.Connection, data []byte
 	for i, msg := range packet.Messages {
 		switch msg := msg.(type) {
 		case *messages7.SvChat:
-			// inspect outgoing traffic
+			// inspect server->client traffic
 			Vlogf(0, "%s -> capitalism.\n", msg.Message)
 
-			// change outgoing traffic
+			// change server->client traffic
 			msg.Message = "capitalism."
 			packet.Messages[i] = msg
 			data = packet.Pack(twconn)
