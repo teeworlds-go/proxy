@@ -92,52 +92,52 @@ func RunConnection(conn *Connection, twconn *protocol7.Connection) {
 		}
 
 		srvMsg := buffer[0:n]
-		result, err := twconn.OnPacket(srvMsg)
+
+		packet := &protocol7.Packet{}
+		err = packet.Unpack(srvMsg)
 		if err != nil {
 			panic(err)
 		}
-		// inspecting incoming trafic
-		if result != nil && result.Packet != nil {
-			for i, msg := range result.Packet.Messages {
-				if msg.MsgId() == network7.MsgGameSvChat {
-					var chat *messages7.SvChat
-					var ok bool
-					if chat, ok = result.Packet.Messages[i].(*messages7.SvChat); ok {
-						fmt.Printf("got chat msg: %s\n", chat.Message)
-						chat.Message = "capitalism."
 
-						// modify chat if this was a proxy
-						result.Packet.Messages[i] = chat
+		// count sequence numbers so we can spoof the client
+		// and send a disconnect message on behalf of the client
+		twconn.OnPacket(packet)
 
-						repack := result.Packet.Pack(twconn)
-						srvMsg = repack
-						fmt.Printf("repack %x\n", repack)
-					}
-				} else if msg.MsgId() == network7.MsgCtrlToken {
-					fmt.Printf("got token=%x registering sigint handler ...\n", twconn.ServerToken)
+		for i, msg := range packet.Messages {
+			switch msg := msg.(type) {
+			case *messages7.SvChat:
+				// inspect outgoing traffic
+				fmt.Printf("%s -> capitalism.\n", msg.Message)
 
-					c := make(chan os.Signal)
-					signal.Notify(c, os.Interrupt, syscall.SIGINT)
-					go func() {
-						<-c
-						Vlogf(0, "Got ctrl+c sending disconnect token=%x ack=%d ...\n", twconn.ServerToken, twconn.Ack)
+				// change outgoing traffic
+				msg.Message = "capitalism."
+				packet.Messages[i] = msg
+				srvMsg = packet.Pack(twconn)
+			case *messages7.CtrlToken:
+				fmt.Printf("got token=%x registering sigint handler ...\n", msg.Token)
 
-						packet := protocol7.Packet{}
-						packet.Messages = append(packet.Messages, &messages7.CtrlClose{})
-						packet.Header.Token = twconn.ServerToken
-						packet.Header.Ack = twconn.Ack
-						disconnectPacked := packet.Pack(twconn)
-						_, err = conn.ServerConn.Write(disconnectPacked)
+				c := make(chan os.Signal)
+				signal.Notify(c, os.Interrupt, syscall.SIGINT)
+				go func() {
+					<-c
+					Vlogf(0, "Got ctrl+c sending disconnect token=%x ack=%d ...\n", msg.Token, twconn.Ack)
 
-						time.Sleep(10_000_000)
+					packet := protocol7.Packet{}
+					packet.Messages = append(packet.Messages, &messages7.CtrlClose{})
+					packet.Header.Token = msg.Token
+					packet.Header.Ack = twconn.Ack
+					disconnectPacked := packet.Pack(twconn)
+					_, err = conn.ServerConn.Write(disconnectPacked)
 
-						Vlogf(0, "disconnected. token=%x ack=%d\n", twconn.ServerToken, twconn.Ack)
-						Vlogf(0, "disconnect: %x\n", disconnectPacked)
+					time.Sleep(10_000_000)
 
-						os.Exit(0)
-					}()
+					Vlogf(0, "disconnected. token=%x ack=%d\n", msg.Token, twconn.Ack)
+					Vlogf(0, "disconnect: %x\n", disconnectPacked)
 
-				}
+					os.Exit(0)
+				}()
+
+			default:
 			}
 		}
 
