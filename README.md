@@ -16,7 +16,7 @@ Connect to 8333 with your 0.7 client and you will be proxied to the 8303 server.
 
 ## what it does
 
-It uses a [teeworlds protocol implementation written in pure go](https://github.com/teeworlds-go/teeworlds) to unpack, change and then repack the traffic.
+It uses a [teeworlds protocol implementation written in pure go](https://github.com/teeworlds-go/go-teeworlds-protocol) to unpack, change and then repack the traffic.
 The current example changes all chat messages to "capitalism.". So a client connecting to the proxy will only see "capitalism." in the chat.
 
 Using this command you can spin up a proxy server on localhost:8303 which connects to a ddnet CHINA server.

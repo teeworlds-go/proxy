@@ -1,4 +1,4 @@
+github.com/teeworlds-go/go-teeworlds-protocol v0.0.0-20240622055927-5e81eef4c7a1 h1:ZLbGFajvcsGCJcatux8/djEz1S+U1cgWZII6pE+1J9M=
+github.com/teeworlds-go/go-teeworlds-protocol v0.0.0-20240622055927-5e81eef4c7a1/go.mod h1:Ngw0LklubUP/ro9HRQT/gfLuuZu2cmOMF8ZfqdLw4Ks=
 github.com/teeworlds-go/huffman v1.0.0 h1:XSNMNAJZb+njNrPACsxcDrrLDXTGjZZt35FqLAuHi4I=
 github.com/teeworlds-go/huffman v1.0.0/go.mod h1:kjaXpL6C6xL7CM+tWPNYjdEgVZB2GumKhx7rCDdXArU=
-github.com/teeworlds-go/teeworlds v0.0.0-20240622051525-1cf0184d605b h1:L2O3FCBy3ShdNMIzGV0IEVJ6bvMGuzWoR7XLwhSWFTY=
-github.com/teeworlds-go/teeworlds v0.0.0-20240622051525-1cf0184d605b/go.mod h1:aKhyLQAZ0cXv3e6ivNMiolKLbycQlDTIq9Yldn7klWM=

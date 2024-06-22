@@ -6,8 +6,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/teeworlds-go/teeworlds/messages7"
-	"github.com/teeworlds-go/teeworlds/protocol7"
+	"github.com/teeworlds-go/go-teeworlds-protocol/messages7"
+	"github.com/teeworlds-go/go-teeworlds-protocol/protocol7"
 )
 
 func OnServerMessage(conn *Connection, twconn *protocol7.Connection, data []byte) []byte {
