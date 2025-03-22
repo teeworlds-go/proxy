@@ -21,7 +21,7 @@ The current example changes all chat messages to "capitalism.". So a client conn
 
 Using this command you can spin up a proxy server on localhost:8303 which connects to a ddnet CHINA server.
 ```
-./proxy -H 101.43.114.27 -P 8327-p 8303
+./proxy -H 101.43.114.27 -P 8327 -p 8303
 ```
 
 Once connected with a 0.7 client the chat will be full of capitalism messages.
